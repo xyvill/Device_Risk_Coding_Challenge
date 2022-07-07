@@ -1,0 +1,35 @@
+package com.example.deviceriskcodechallenge;
+
+
+import android.app.Application;
+import android.util.Log;
+
+import com.iovation.mobile.android.FraudForceConfiguration;
+import com.iovation.mobile.android.FraudForceManager;
+
+public class DeviceRiskApplication extends Application {
+
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        FraudForceConfiguration configuration = new FraudForceConfiguration.Builder()
+                .subscriberKey("YOUR-SUBSCRIBER-KEY-HERE")
+                .enableNetworkCalls(true) // Defaults to false if left out of configuration
+                .build();
+
+        FraudForceManager fraudForceManager = FraudForceManager.getInstance();
+        fraudForceManager.initialize(configuration, this);
+
+        //FraudForceManager.getInstance().refresh(this);
+
+        String blackbox = FraudForceManager.getInstance().getBlackbox(this);
+
+        System.out.println(blackbox);
+
+        Log.d("Blackbox", blackbox);
+
+
+    }
+}
