@@ -16,8 +16,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.deviceriskcodechallenge.databinding.ActivityMainBinding;
+
 public class MainActivity extends AppCompatActivity {
     private DeviceRiskViewModel model;
+    private ActivityMainBinding binding;
 
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -27,13 +30,25 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
 
+        //Initialize model object
         model = new ViewModelProvider(this).get(DeviceRiskViewModel.class);
 
-        //Viewbinding
-        TextView blackboxView = ((TextView)findViewById(R.id.BlackboxField));
-        Button   blackboxButton = ((Button)findViewById(R.id.BlackboxButton));
+        //Attach bluetooth request to blackbox button
+        BluetoothRequestInit(binding.BlackboxButton);
+
+        //ObserveBlackBoxData(model);
+
+        //Observe current blackbox data
+        model.blackbox.observe(this, blackboxData -> {
+            binding.BlackboxField.setText(blackboxData);
+        });
+    }
+
+    private void BluetoothRequestInit(Button blackboxButton){
 
         blackboxButton.setOnClickListener( view -> {
             if (ContextCompat.checkSelfPermission(
@@ -44,8 +59,6 @@ public class MainActivity extends AppCompatActivity {
                 model.getBlackbox(this);
             }
             else {
-                // You can directly ask for the permission.
-                // The registered ActivityResultCallback gets the result of this request.
                 if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
                     requestPermissionLauncher.launch(
                             Manifest.permission.BLUETOOTH);
@@ -56,11 +69,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        model.blackbox.observe(this, blackboxData -> {
-            blackboxView.setText(blackboxData);
-        });
-
     }
-
 }

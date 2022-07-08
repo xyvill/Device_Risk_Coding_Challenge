@@ -15,7 +15,7 @@ public class DeviceRiskApplication extends Application {
         super.onCreate();
 
         FraudForceConfiguration configuration = new FraudForceConfiguration.Builder()
-                .subscriberKey("YOUR-SUBSCRIBER-KEY-HERE")
+                .subscriberKey("0")
                 .enableNetworkCalls(true) // Defaults to false if left out of configuration
                 .build();
 
