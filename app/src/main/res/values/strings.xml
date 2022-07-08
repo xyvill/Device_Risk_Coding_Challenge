@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Device Risk Code Challenge</string>
+    <string name="generate_blackbox">Generate Blackbox</string>
 </resources>

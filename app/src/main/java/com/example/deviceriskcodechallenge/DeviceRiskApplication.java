@@ -22,14 +22,5 @@ public class DeviceRiskApplication extends Application {
         FraudForceManager fraudForceManager = FraudForceManager.getInstance();
         fraudForceManager.initialize(configuration, this);
 
-        //FraudForceManager.getInstance().refresh(this);
-
-        String blackbox = FraudForceManager.getInstance().getBlackbox(this);
-
-        System.out.println(blackbox);
-
-        Log.d("Blackbox", blackbox);
-
-
     }
 }

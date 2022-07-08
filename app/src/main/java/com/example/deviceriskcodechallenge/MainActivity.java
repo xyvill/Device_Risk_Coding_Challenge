@@ -4,7 +4,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
@@ -13,8 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
+
 
 import com.example.deviceriskcodechallenge.databinding.ActivityMainBinding;
 
@@ -40,12 +38,9 @@ public class MainActivity extends AppCompatActivity {
         //Attach bluetooth request to blackbox button
         BluetoothRequestInit(binding.BlackboxButton);
 
-        //ObserveBlackBoxData(model);
-
         //Observe current blackbox data
-        model.blackbox.observe(this, blackboxData -> {
-            binding.BlackboxField.setText(blackboxData);
-        });
+        ObserveBlackBoxData(model);
+
     }
 
     private void BluetoothRequestInit(Button blackboxButton){
@@ -68,6 +63,13 @@ public class MainActivity extends AppCompatActivity {
                             Manifest.permission.BLUETOOTH_CONNECT);
                 }
             }
+        });
+    }
+
+    private void ObserveBlackBoxData(DeviceRiskViewModel model)
+    {
+        model.blackbox.observe(this, blackboxData -> {
+            binding.BlackboxField.setText(blackboxData);
         });
     }
 }
