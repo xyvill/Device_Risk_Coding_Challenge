@@ -16,58 +16,56 @@ import android.widget.Button;
 
 import com.example.deviceriskcodechallenge.databinding.ActivityMainBinding;
 
+import java.util.concurrent.ExecutorService;
+
 public class MainActivity extends AppCompatActivity {
     private DeviceRiskViewModel model;
     private ActivityMainBinding binding;
-
+    private ExecutorService executorService;
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                model.getBlackbox(this);
+                model.getBlackbox(this, executorService);
             });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Create ViewBinding to reference UI components
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
+
         setContentView(view);
+
+        //Initialize executor service
+        executorService = ((DeviceRiskApplication) getApplication()).GetBlackboxExecutor();
 
         //Initialize model object
         model = new ViewModelProvider(this).get(DeviceRiskViewModel.class);
 
         //Attach bluetooth request to blackbox button
-        BluetoothRequestInit(binding.BlackboxButton);
+        BluetoothRequestInit();
 
         //Observe current blackbox data
-        ObserveBlackBoxData(model);
+        ObserveBlackBoxData();
 
     }
 
-    private void BluetoothRequestInit(Button blackboxButton){
-
-        blackboxButton.setOnClickListener( view -> {
-            if (ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.BLUETOOTH) ==
-                    PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.BLUETOOTH_CONNECT) ==
-                    PackageManager.PERMISSION_GRANTED) {
-                model.getBlackbox(this);
+    private void BluetoothRequestInit() {
+        binding.BlackboxButton.setOnClickListener(view -> {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
+                model.getBlackbox(this, executorService);
             }
-            else {
-                if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
-                    requestPermissionLauncher.launch(
-                            Manifest.permission.BLUETOOTH);
-                }
-                else{
-                    requestPermissionLauncher.launch(
-                            Manifest.permission.BLUETOOTH_CONNECT);
-                }
+            else if(Build.VERSION.SDK_INT > Build.VERSION_CODES.R && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED){
+                model.getBlackbox(this, executorService);
+            }
+            else if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R) {
+                requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT);
             }
         });
     }
 
-    private void ObserveBlackBoxData(DeviceRiskViewModel model)
-    {
+    private void ObserveBlackBoxData() {
         model.blackbox.observe(this, blackboxData -> {
             binding.BlackboxField.setText(blackboxData);
         });
